@@ -12,7 +12,15 @@
 					"name": "source1"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [],
 			"scriptLines": [
 				"parameters{",
@@ -27,7 +35,11 @@
 				"     timestampFormats: ['MM/dd/yyyy HH:mm:ss'],",
 				"     preferredIntegralType: 'None',",
 				"     preferredFractionalType: 'decimal',",
-				"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1"
+				"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}
