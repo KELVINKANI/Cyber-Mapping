@@ -28,6 +28,7 @@
 				"}",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: true,",
 				"     moveFiles: ['cyber-data/fetch_cyber_data.json','/archive/'],",
 				"     documentForm: 'documentPerLine',",
