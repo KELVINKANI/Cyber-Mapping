@@ -84,7 +84,8 @@
 									"copyBehavior": "FlattenHierarchy"
 								},
 								"formatSettings": {
-									"type": "JsonWriteSettings"
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
 								}
 							},
 							"enableStaging": false
@@ -98,7 +99,75 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "Json1",
+								"referenceName": "Unprocessed",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Copy data2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "cyber-threat-data/cyber-data/fetch_cyber_data.json"
+							},
+							{
+								"name": "Destination",
+								"value": "cyber-threat-data/cyber-data/processed"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": true
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings",
+									"filePattern": "setOfObjects"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "Unprocessed",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "processed",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -113,7 +182,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/CyberAPI_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Json1')]"
+				"[concat(variables('factoryId'), '/datasets/Unprocessed')]",
+				"[concat(variables('factoryId'), '/datasets/processed')]"
 			]
 		},
 		{
@@ -135,7 +205,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"name": "[concat(parameters('factoryName'), '/Unprocessed')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -200,67 +270,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/dataflow_prossesd')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "Json1",
-								"type": "DatasetReference"
-							},
-							"name": "source1"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "processed",
-								"type": "DatasetReference"
-							},
-							"name": "sink1"
-						}
-					],
-					"transformations": [],
-					"scriptLines": [
-						"parameters{",
-						"     parameter1 as string",
-						"}",
-						"source(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: true,",
-						"     moveFiles: ['cyber-data/fetch_cyber_data.json','/archive/'],",
-						"     documentForm: 'documentPerLine',",
-						"     dateFormats: ['dd/MM/yyyy'],",
-						"     timestampFormats: ['MM/dd/yyyy HH:mm:ss'],",
-						"     preferredIntegralType: 'None',",
-						"     preferredFractionalType: 'decimal',",
-						"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1",
-						"source1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     input(",
-						"          resultsPerPage as integer,",
-						"          startIndex as integer,",
-						"          totalResults as integer,",
-						"          format as string,",
-						"          version as string,",
-						"          timestamp as string,",
-						"          vulnerabilities as (cve as (id as string, sourceIdentifier as string, published as string, lastModified as string, vulnStatus as string, cveTags as string[], descriptions as (lang as string, value as string)[], metrics as (cvssMetricV2 as (source as string, type as string, cvssData as (version as string, vectorString as string, baseScore as double, accessVector as string, accessComplexity as string, authentication as string, confidentialityImpact as string, integrityImpact as string, availabilityImpact as string), baseSeverity as string, exploitabilityScore as double, impactScore as double, acInsufInfo as boolean, obtainAllPrivilege as boolean, obtainUserPrivilege as boolean, obtainOtherPrivilege as boolean, userInteractionRequired as boolean)[]), weaknesses as (source as string, type as string, description as (lang as string, value as string)[])[], configurations as (nodes as (operator as string, negate as boolean, cpeMatch as (vulnerable as boolean, criteria as string, matchCriteriaId as string)[])[])[], references as (url as string, source as string)[]))[]",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sink1"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Json1')]",
-				"[concat(variables('factoryId'), '/datasets/processed')]"
-			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/processed')]",
