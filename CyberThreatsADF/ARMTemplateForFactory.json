@@ -1,0 +1,514 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "CyberThreatsADF"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://services.nvd.nist.gov/rest/json/cves/2.0"
+		},
+		"WebConnection1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://services.nvd.nist.gov/rest/json/cves/2.0"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CyberData_Pipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CyberData_Pipeline",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://services.nvd.nist.gov/rest/json/cves/2.0"
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "CyberData_Pipeline",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET",
+								"paginationRules": {
+									"supportRFC5988": "true"
+								}
+							},
+							"sink": {
+								"type": "JsonSink",
+								"storeSettings": {
+									"type": "AzureBlobStorageWriteSettings",
+									"copyBehavior": "FlattenHierarchy"
+								},
+								"formatSettings": {
+									"type": "JsonWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "CyberAPI_DS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2025-03-08T09:36:44Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CyberAPI_DS')]",
+				"[concat(variables('factoryId'), '/datasets/Json1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CyberAPI_DS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "RestService1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/RestService1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "fetch_cyber_data.json",
+						"folderPath": "cyber-data",
+						"container": "cyber-threat-data"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestService1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestService1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/WebConnection1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "WebConnection",
+				"typeProperties": {
+					"url": "[parameters('WebConnection1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_prossesd')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "processed",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"parameters{",
+						"     parameter1 as string",
+						"}",
+						"source(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: true,",
+						"     moveFiles: ['cyber-data/fetch_cyber_data.json','/archive/'],",
+						"     documentForm: 'documentPerLine',",
+						"     dateFormats: ['dd/MM/yyyy'],",
+						"     timestampFormats: ['MM/dd/yyyy HH:mm:ss'],",
+						"     preferredIntegralType: 'None',",
+						"     preferredFractionalType: 'decimal',",
+						"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          resultsPerPage as integer,",
+						"          startIndex as integer,",
+						"          totalResults as integer,",
+						"          format as string,",
+						"          version as string,",
+						"          timestamp as string,",
+						"          vulnerabilities as (cve as (id as string, sourceIdentifier as string, published as string, lastModified as string, vulnStatus as string, cveTags as string[], descriptions as (lang as string, value as string)[], metrics as (cvssMetricV2 as (source as string, type as string, cvssData as (version as string, vectorString as string, baseScore as double, accessVector as string, accessComplexity as string, authentication as string, confidentialityImpact as string, integrityImpact as string, availabilityImpact as string), baseSeverity as string, exploitabilityScore as double, impactScore as double, acInsufInfo as boolean, obtainAllPrivilege as boolean, obtainUserPrivilege as boolean, obtainOtherPrivilege as boolean, userInteractionRequired as boolean)[]), weaknesses as (source as string, type as string, description as (lang as string, value as string)[])[], configurations as (nodes as (operator as string, negate as boolean, cpeMatch as (vulnerable as boolean, criteria as string, matchCriteriaId as string)[])[])[], references as (url as string, source as string)[]))[]",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/datasets/processed')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/processed')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "processed",
+						"folderPath": "cyber-data",
+						"container": "cyber-threat-data"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"resultsPerPage": {
+							"type": "integer"
+						},
+						"startIndex": {
+							"type": "integer"
+						},
+						"totalResults": {
+							"type": "integer"
+						},
+						"format": {
+							"type": "string"
+						},
+						"version": {
+							"type": "string"
+						},
+						"timestamp": {
+							"type": "string"
+						},
+						"vulnerabilities": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"cve": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string"
+											},
+											"sourceIdentifier": {
+												"type": "string"
+											},
+											"published": {
+												"type": "string"
+											},
+											"lastModified": {
+												"type": "string"
+											},
+											"vulnStatus": {
+												"type": "string"
+											},
+											"cveTags": {
+												"type": "array"
+											},
+											"descriptions": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"lang": {
+															"type": "string"
+														},
+														"value": {
+															"type": "string"
+														}
+													}
+												}
+											},
+											"metrics": {
+												"type": "object",
+												"properties": {
+													"cvssMetricV2": {
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"source": {
+																	"type": "string"
+																},
+																"type": {
+																	"type": "string"
+																},
+																"cvssData": {
+																	"type": "object",
+																	"properties": {
+																		"version": {
+																			"type": "string"
+																		},
+																		"vectorString": {
+																			"type": "string"
+																		},
+																		"baseScore": {
+																			"type": "number"
+																		},
+																		"accessVector": {
+																			"type": "string"
+																		},
+																		"accessComplexity": {
+																			"type": "string"
+																		},
+																		"authentication": {
+																			"type": "string"
+																		},
+																		"confidentialityImpact": {
+																			"type": "string"
+																		},
+																		"integrityImpact": {
+																			"type": "string"
+																		},
+																		"availabilityImpact": {
+																			"type": "string"
+																		}
+																	}
+																},
+																"baseSeverity": {
+																	"type": "string"
+																},
+																"exploitabilityScore": {
+																	"type": "number"
+																},
+																"impactScore": {
+																	"type": "number"
+																},
+																"acInsufInfo": {
+																	"type": "boolean"
+																},
+																"obtainAllPrivilege": {
+																	"type": "boolean"
+																},
+																"obtainUserPrivilege": {
+																	"type": "boolean"
+																},
+																"obtainOtherPrivilege": {
+																	"type": "boolean"
+																},
+																"userInteractionRequired": {
+																	"type": "boolean"
+																}
+															}
+														}
+													}
+												}
+											},
+											"weaknesses": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"source": {
+															"type": "string"
+														},
+														"type": {
+															"type": "string"
+														},
+														"description": {
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"lang": {
+																		"type": "string"
+																	},
+																	"value": {
+																		"type": "string"
+																	}
+																}
+															}
+														}
+													}
+												}
+											},
+											"configurations": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"nodes": {
+															"type": "array",
+															"items": {
+																"type": "object",
+																"properties": {
+																	"operator": {
+																		"type": "string"
+																	},
+																	"negate": {
+																		"type": "boolean"
+																	},
+																	"cpeMatch": {
+																		"type": "array",
+																		"items": {
+																			"type": "object",
+																			"properties": {
+																				"vulnerable": {
+																					"type": "boolean"
+																				},
+																				"criteria": {
+																					"type": "string"
+																				},
+																				"matchCriteriaId": {
+																					"type": "string"
+																				}
+																			}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+											},
+											"references": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"url": {
+															"type": "string"
+														},
+														"source": {
+															"type": "string"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
+			]
+		}
+	]
+}
