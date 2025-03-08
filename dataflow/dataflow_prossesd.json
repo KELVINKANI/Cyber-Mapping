@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "processed",
+						"referenceName": "Json1",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -30,16 +30,7 @@
 				"parameters{",
 				"     parameter1 as string",
 				"}",
-				"source(output(",
-				"          resultsPerPage as integer,",
-				"          startIndex as integer,",
-				"          totalResults as integer,",
-				"          format as string,",
-				"          version as string,",
-				"          timestamp as string,",
-				"          vulnerabilities as (cve as (id as string, sourceIdentifier as string, published as string, lastModified as string, vulnStatus as string, cveTags as string[], descriptions as (lang as string, value as string)[], metrics as (cvssMetricV2 as (source as string, type as string, cvssData as (version as string, vectorString as string, baseScore as double, accessVector as string, accessComplexity as string, authentication as string, confidentialityImpact as string, integrityImpact as string, availabilityImpact as string), baseSeverity as string, exploitabilityScore as double, impactScore as double, acInsufInfo as boolean, obtainAllPrivilege as boolean, obtainUserPrivilege as boolean, obtainOtherPrivilege as boolean, userInteractionRequired as boolean)[]), weaknesses as (source as string, type as string, description as (lang as string, value as string)[])[], configurations as (nodes as (operator as string, negate as boolean, cpeMatch as (vulnerable as boolean, criteria as string, matchCriteriaId as string)[])[])[], references as (url as string, source as string)[]))[]",
-				"     ),",
-				"     allowSchemaDrift: true,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     inferDriftedColumnTypes: true,",
 				"     ignoreNoFilesFound: true,",
