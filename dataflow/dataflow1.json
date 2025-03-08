@@ -18,8 +18,12 @@
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: true,",
-				"     moveFiles: ['','/archive/'],",
+				"     moveFiles: ['cyber-data/fetch_cyber_data.json','/archive/'],",
 				"     documentForm: 'documentPerLine',",
+				"     dateFormats: ['dd/MM/yyyy'],",
+				"     timestampFormats: ['MM/dd/yyyy HH:mm:ss'],",
+				"     preferredIntegralType: 'None',",
+				"     preferredFractionalType: 'decimal',",
 				"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1"
 			]
 		}
