@@ -24,10 +24,6 @@
 				"     ignoreNoFilesFound: false,",
 				"     documentForm: 'documentPerLine') ~> source1",
 				"source1 foldDown(unroll(),",
-				"     mapColumn(",
-				"          each(match(cve.id),",
-				"               cve_id = $$)",
-				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> flatten1"
 			]
