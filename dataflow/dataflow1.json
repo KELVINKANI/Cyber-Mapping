@@ -17,8 +17,9 @@
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false,",
-				"     documentForm: 'documentPerLine') ~> source1"
+				"     ignoreNoFilesFound: true,",
+				"     documentForm: 'documentPerLine',",
+				"     wildcardPaths:['cyber-threat-data/*.json']) ~> source1"
 			]
 		}
 	}
