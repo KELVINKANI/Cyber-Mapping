@@ -92,7 +92,16 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": [],
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "cyber-threat-data/cyber-data/fetch_cyber_data.json"
+					},
+					{
+						"name": "Destination",
+						"value": "cyber-threat-data/cyber-data/processed"
+					}
+				],
 				"typeProperties": {
 					"source": {
 						"type": "JsonSource",
