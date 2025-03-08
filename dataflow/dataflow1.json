@@ -15,7 +15,7 @@
 			"sinks": [],
 			"transformations": [],
 			"scriptLines": [
-				"source(allowSchemaDrift: false,",
+				"source(allowSchemaDrift: true,",
 				"     validateSchema: true,",
 				"     limit: 10,",
 				"     ignoreNoFilesFound: false,",
