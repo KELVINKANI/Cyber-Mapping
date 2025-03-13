@@ -119,7 +119,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/unprosessed_Json')]",
+			"name": "[concat(parameters('factoryName'), '/unprosseced_Json')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
