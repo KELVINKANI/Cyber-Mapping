@@ -11,6 +11,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": "processed",
+				"folderPath": "cyber-data",
 				"container": "cyber-threat-data"
 			},
 			"columnDelimiter": ",",
