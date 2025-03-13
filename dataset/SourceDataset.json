@@ -1,5 +1,5 @@
 {
-	"name": "SourceDataset_q0q",
+	"name": "SourceDataset",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "RestService1",

@@ -1,5 +1,5 @@
 {
-	"name": "DestinationDataset_q0q",
+	"name": "DestinationDataset",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage3",
