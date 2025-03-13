@@ -8,6 +8,9 @@
 		"AzureBlobStorage3_connectionString": {
 			"value": ""
 		},
+		"cyber_threat_data_connectionString": {
+			"value": ""
+		},
 		"RestService1_properties_typeProperties_url": {
 			"value": "https://services.nvd.nist.gov/rest/json/cves/2.0"
 		},
