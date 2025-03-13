@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Web1",
+				"name": "Web Activity Source 1",
 				"type": "WebActivity",
 				"dependsOn": [],
 				"policy": {
@@ -13,7 +13,11 @@
 					"secureOutput": false,
 					"secureInput": false
 				},
-				"userProperties": []
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://services.nvd.nist.gov/rest/json/cves/2.0"
+				}
 			}
 		],
 		"annotations": []
