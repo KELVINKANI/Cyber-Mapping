@@ -15,14 +15,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'cyber_threat_data'"
 		},
-		"RestService1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://services.nvd.nist.gov/rest/json/cves/2.0"
-		},
-		"WebConnection1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://services.nvd.nist.gov/rest/json/cves/2.0"
-		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -55,12 +47,6 @@
 					},
 					"cyber_threat_data_connectionString": {
 						"value": "[parameters('cyber_threat_data_connectionString')]"
-					},
-					"RestService1_properties_typeProperties_url": {
-						"value": "[parameters('RestService1_properties_typeProperties_url')]"
-					},
-					"WebConnection1_properties_typeProperties_url": {
-						"value": "[parameters('WebConnection1_properties_typeProperties_url')]"
 					}
 				}
 			},
