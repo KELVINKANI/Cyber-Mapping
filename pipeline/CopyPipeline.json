@@ -38,15 +38,13 @@
 						"requestMethod": "GET"
 					},
 					"sink": {
-						"type": "DelimitedTextSink",
+						"type": "JsonSink",
 						"storeSettings": {
 							"type": "AzureBlobStorageWriteSettings",
 							"copyBehavior": "FlattenHierarchy"
 						},
 						"formatSettings": {
-							"type": "DelimitedTextWriteSettings",
-							"quoteAllText": true,
-							"fileExtension": ".txt"
+							"type": "JsonWriteSettings"
 						}
 					},
 					"enableStaging": false,
@@ -416,7 +414,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DestinationDataset",
+						"referenceName": "Json_unprossed",
 						"type": "DatasetReference"
 					}
 				]

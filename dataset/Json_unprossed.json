@@ -1,0 +1,17 @@
+{
+	"name": "Json_unprossed",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "cyber_threat_data",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation"
+			}
+		},
+		"schema": {}
+	}
+}
