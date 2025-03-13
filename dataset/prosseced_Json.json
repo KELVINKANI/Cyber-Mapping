@@ -2,7 +2,7 @@
 	"name": "prosseced_Json",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "cyber_threat_data",
+			"referenceName": "AzureBlobStorage1",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
