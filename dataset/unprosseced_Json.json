@@ -1,5 +1,5 @@
 {
-	"name": "unprosessed_Json",
+	"name": "unprosseced_Json",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "cyber_threat_data",
