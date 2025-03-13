@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "processed-json",
+				"fileName": "processed",
 				"folderPath": "cyber-data",
 				"container": "cyber-threat-data"
 			}
