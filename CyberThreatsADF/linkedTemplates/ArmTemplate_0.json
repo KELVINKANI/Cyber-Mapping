@@ -11,6 +11,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage1'"
 		},
+		"AzureBlobStorage2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage2'"
+		},
+		"AzureBlobStorage3_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorage3'"
+		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://services.nvd.nist.gov/rest/json/cves/2.0"
@@ -33,6 +41,19 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('AzureBlobStorage1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage2_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -67,7 +88,49 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/CyberAPI_DS')]",
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage3')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage3_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorage3",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "unprocessed",
+						"folderPath": "cyber-data",
+						"container": "cyber-threat-data"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage3')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -77,7 +140,9 @@
 				},
 				"annotations": [],
 				"type": "RestResource",
-				"typeProperties": {},
+				"typeProperties": {
+					"relativeUrl": "https://services.nvd.nist.gov/rest/json/cves/2.0"
+				},
 				"schema": []
 			},
 			"dependsOn": [
@@ -85,370 +150,15 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Unprocessed')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "fetch_cyber_data.json",
-						"folderPath": "cyber-data",
-						"container": "cyber-threat-data"
-					}
-				},
-				"schema": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/processed')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "processed",
-						"folderPath": "cyber-data",
-						"container": "cyber-threat-data"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"resultsPerPage": {
-							"type": "integer"
-						},
-						"startIndex": {
-							"type": "integer"
-						},
-						"totalResults": {
-							"type": "integer"
-						},
-						"format": {
-							"type": "string"
-						},
-						"version": {
-							"type": "string"
-						},
-						"timestamp": {
-							"type": "string"
-						},
-						"vulnerabilities": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"cve": {
-										"type": "object",
-										"properties": {
-											"id": {
-												"type": "string"
-											},
-											"sourceIdentifier": {
-												"type": "string"
-											},
-											"published": {
-												"type": "string"
-											},
-											"lastModified": {
-												"type": "string"
-											},
-											"vulnStatus": {
-												"type": "string"
-											},
-											"cveTags": {
-												"type": "array"
-											},
-											"descriptions": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"lang": {
-															"type": "string"
-														},
-														"value": {
-															"type": "string"
-														}
-													}
-												}
-											},
-											"metrics": {
-												"type": "object",
-												"properties": {
-													"cvssMetricV2": {
-														"type": "array",
-														"items": {
-															"type": "object",
-															"properties": {
-																"source": {
-																	"type": "string"
-																},
-																"type": {
-																	"type": "string"
-																},
-																"cvssData": {
-																	"type": "object",
-																	"properties": {
-																		"version": {
-																			"type": "string"
-																		},
-																		"vectorString": {
-																			"type": "string"
-																		},
-																		"baseScore": {
-																			"type": "number"
-																		},
-																		"accessVector": {
-																			"type": "string"
-																		},
-																		"accessComplexity": {
-																			"type": "string"
-																		},
-																		"authentication": {
-																			"type": "string"
-																		},
-																		"confidentialityImpact": {
-																			"type": "string"
-																		},
-																		"integrityImpact": {
-																			"type": "string"
-																		},
-																		"availabilityImpact": {
-																			"type": "string"
-																		}
-																	}
-																},
-																"baseSeverity": {
-																	"type": "string"
-																},
-																"exploitabilityScore": {
-																	"type": "number"
-																},
-																"impactScore": {
-																	"type": "number"
-																},
-																"acInsufInfo": {
-																	"type": "boolean"
-																},
-																"obtainAllPrivilege": {
-																	"type": "boolean"
-																},
-																"obtainUserPrivilege": {
-																	"type": "boolean"
-																},
-																"obtainOtherPrivilege": {
-																	"type": "boolean"
-																},
-																"userInteractionRequired": {
-																	"type": "boolean"
-																}
-															}
-														}
-													}
-												}
-											},
-											"weaknesses": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"source": {
-															"type": "string"
-														},
-														"type": {
-															"type": "string"
-														},
-														"description": {
-															"type": "array",
-															"items": {
-																"type": "object",
-																"properties": {
-																	"lang": {
-																		"type": "string"
-																	},
-																	"value": {
-																		"type": "string"
-																	}
-																}
-															}
-														}
-													}
-												}
-											},
-											"configurations": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"nodes": {
-															"type": "array",
-															"items": {
-																"type": "object",
-																"properties": {
-																	"operator": {
-																		"type": "string"
-																	},
-																	"negate": {
-																		"type": "boolean"
-																	},
-																	"cpeMatch": {
-																		"type": "array",
-																		"items": {
-																			"type": "object",
-																			"properties": {
-																				"vulnerable": {
-																					"type": "boolean"
-																				},
-																				"criteria": {
-																					"type": "string"
-																				},
-																				"matchCriteriaId": {
-																					"type": "string"
-																				}
-																			}
-																		}
-																	}
-																}
-															}
-														}
-													}
-												}
-											},
-											"references": {
-												"type": "array",
-												"items": {
-													"type": "object",
-													"properties": {
-														"url": {
-															"type": "string"
-														},
-														"source": {
-															"type": "string"
-														}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/CyberData_Pipeline')]",
+			"name": "[concat(parameters('factoryName'), '/CopyPipeline')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "CyberData_Pipeline",
-						"type": "WebActivity",
+						"name": "Copy-Unprocessed",
+						"type": "Copy",
 						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"method": "GET",
-							"headers": {},
-							"url": "https://services.nvd.nist.gov/rest/json/cves/2.0"
-						}
-					},
-					{
-						"name": "Copy data1",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "CyberData_Pipeline",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "RestSource",
-								"httpRequestTimeout": "00:01:40",
-								"requestInterval": "00.00:00:00.010",
-								"requestMethod": "GET",
-								"paginationRules": {
-									"supportRFC5988": "true"
-								}
-							},
-							"sink": {
-								"type": "JsonSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings",
-									"copyBehavior": "FlattenHierarchy"
-								},
-								"formatSettings": {
-									"type": "JsonWriteSettings",
-									"filePattern": "setOfObjects"
-								}
-							},
-							"enableStaging": false
-						},
-						"inputs": [
-							{
-								"referenceName": "CyberAPI_DS",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "Unprocessed",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
-						"name": "Copy data2",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Copy data1",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -459,48 +169,401 @@
 						"userProperties": [
 							{
 								"name": "Source",
-								"value": "cyber-threat-data/cyber-data/fetch_cyber_data.json"
+								"value": "https://services.nvd.nist.gov/rest/json/cves/2.0"
 							},
 							{
 								"name": "Destination",
-								"value": "cyber-threat-data/cyber-data/processed"
+								"value": "cyber-threat-data/unprocessed/cyber-data"
 							}
 						],
 						"typeProperties": {
 							"source": {
-								"type": "JsonSource",
-								"storeSettings": {
-									"type": "AzureBlobStorageReadSettings",
-									"recursive": true,
-									"enablePartitionDiscovery": true
-								},
-								"formatSettings": {
-									"type": "JsonReadSettings"
-								}
+								"type": "RestSource",
+								"httpRequestTimeout": "00:01:40",
+								"requestInterval": "00.00:00:00.010",
+								"requestMethod": "GET"
 							},
 							"sink": {
-								"type": "JsonSink",
+								"type": "DelimitedTextSink",
 								"storeSettings": {
 									"type": "AzureBlobStorageWriteSettings",
 									"copyBehavior": "FlattenHierarchy"
 								},
 								"formatSettings": {
-									"type": "JsonWriteSettings",
-									"filePattern": "setOfObjects"
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
 								}
 							},
-							"enableStaging": false
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "$['resultsPerPage']"
+										},
+										"sink": {
+											"name": "resultsPerPage"
+										}
+									},
+									{
+										"source": {
+											"path": "$['startIndex']"
+										},
+										"sink": {
+											"name": "startIndex"
+										}
+									},
+									{
+										"source": {
+											"path": "$['totalResults']"
+										},
+										"sink": {
+											"name": "totalResults"
+										}
+									},
+									{
+										"source": {
+											"path": "$['format']"
+										},
+										"sink": {
+											"name": "format"
+										}
+									},
+									{
+										"source": {
+											"path": "$['version']"
+										},
+										"sink": {
+											"name": "version"
+										}
+									},
+									{
+										"source": {
+											"path": "$['timestamp']"
+										},
+										"sink": {
+											"name": "timestamp"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['id']"
+										},
+										"sink": {
+											"name": "id"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['sourceIdentifier']"
+										},
+										"sink": {
+											"name": "sourceIdentifier"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['published']"
+										},
+										"sink": {
+											"name": "published"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['lastModified']"
+										},
+										"sink": {
+											"name": "lastModified"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['vulnStatus']"
+										},
+										"sink": {
+											"name": "vulnStatus"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['cveTags'][0]"
+										},
+										"sink": {
+											"name": "items"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['descriptions'][0]['lang']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_descriptions'][0]['lang"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['descriptions'][0]['value']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_descriptions'][0]['value"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['source']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_metrics_cvssMetricV2'][0]['source"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['type']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_metrics_cvssMetricV2'][0]['type"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['version']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_metrics_cvssMetricV2'][0]['cvssData_version"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['vectorString']"
+										},
+										"sink": {
+											"name": "vectorString"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['baseScore']"
+										},
+										"sink": {
+											"name": "baseScore"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['accessVector']"
+										},
+										"sink": {
+											"name": "accessVector"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['accessComplexity']"
+										},
+										"sink": {
+											"name": "accessComplexity"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['authentication']"
+										},
+										"sink": {
+											"name": "authentication"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['confidentialityImpact']"
+										},
+										"sink": {
+											"name": "confidentialityImpact"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['integrityImpact']"
+										},
+										"sink": {
+											"name": "integrityImpact"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['cvssData']['availabilityImpact']"
+										},
+										"sink": {
+											"name": "availabilityImpact"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['baseSeverity']"
+										},
+										"sink": {
+											"name": "baseSeverity"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['exploitabilityScore']"
+										},
+										"sink": {
+											"name": "exploitabilityScore"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['impactScore']"
+										},
+										"sink": {
+											"name": "impactScore"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['acInsufInfo']"
+										},
+										"sink": {
+											"name": "acInsufInfo"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['obtainAllPrivilege']"
+										},
+										"sink": {
+											"name": "obtainAllPrivilege"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['obtainUserPrivilege']"
+										},
+										"sink": {
+											"name": "obtainUserPrivilege"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['obtainOtherPrivilege']"
+										},
+										"sink": {
+											"name": "obtainOtherPrivilege"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['metrics']['cvssMetricV2'][0]['userInteractionRequired']"
+										},
+										"sink": {
+											"name": "userInteractionRequired"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['weaknesses'][0]['source']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_weaknesses'][0]['source"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['weaknesses'][0]['type']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_weaknesses'][0]['type"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['weaknesses'][0]['description'][0]['lang']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_weaknesses'][0]['description'][0]['lang"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['weaknesses'][0]['description'][0]['value']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_weaknesses'][0]['description'][0]['value"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['configurations'][0]['nodes'][0]['operator']"
+										},
+										"sink": {
+											"name": "operator"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['configurations'][0]['nodes'][0]['negate']"
+										},
+										"sink": {
+											"name": "negate"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['configurations'][0]['nodes'][0]['cpeMatch'][0]['vulnerable']"
+										},
+										"sink": {
+											"name": "vulnerable"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['configurations'][0]['nodes'][0]['cpeMatch'][0]['criteria']"
+										},
+										"sink": {
+											"name": "criteria"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['configurations'][0]['nodes'][0]['cpeMatch'][0]['matchCriteriaId']"
+										},
+										"sink": {
+											"name": "matchCriteriaId"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['references'][0]['url']"
+										},
+										"sink": {
+											"name": "url"
+										}
+									},
+									{
+										"source": {
+											"path": "$['vulnerabilities'][0]['cve']['references'][0]['source']"
+										},
+										"sink": {
+											"name": "vulnerabilities'][0]['cve_references'][0]['source"
+										}
+									}
+								]
+							}
 						},
 						"inputs": [
 							{
-								"referenceName": "Unprocessed",
+								"referenceName": "SourceDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "processed",
+								"referenceName": "DestinationDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
@@ -510,13 +573,41 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"annotations": [],
-				"lastPublishTime": "2025-03-08T09:36:44Z"
+				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CyberAPI_DS')]",
-				"[concat(variables('factoryId'), '/datasets/Unprocessed')]",
-				"[concat(variables('factoryId'), '/datasets/processed')]"
+				"[concat(variables('factoryId'), '/datasets/SourceDataset')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Trigger_q0q')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "CopyPipeline",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 24,
+						"startTime": "2025-03-13T08:15:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CopyPipeline')]"
 			]
 		}
 	]
