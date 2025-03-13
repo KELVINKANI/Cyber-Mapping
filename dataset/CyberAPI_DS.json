@@ -1,5 +1,5 @@
 {
-	"name": "RestResource",
+	"name": "CyberAPI_DS",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Rest_Connection",
