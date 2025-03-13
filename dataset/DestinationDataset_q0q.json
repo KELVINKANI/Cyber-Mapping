@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "cyber-data",
-				"folderPath": "unprocessed",
+				"fileName": "unprocessed",
+				"folderPath": "cyber-data",
 				"container": "cyber-threat-data"
 			},
 			"columnDelimiter": ",",
